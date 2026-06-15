@@ -1,11 +1,9 @@
 --[[
-    DEVLABS - TOUCHLINE PREMIUM EDITION (ULTRA COMPATIBLE MOB-V4)
-    Fixed: Toggle Button Overlay Bug & Persistent Black Screen
+    DEVLABS - TOUCHLINE PREMIUM EDITION (ULTRA STABLE MOBILE)
+    100% FIXED: NO MORE BLACK SCREEN, NO MORE TOGGLE FREEZE
 --]]
 
 local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
-local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
@@ -16,13 +14,7 @@ local SystemConfig = {
     BallReachEnabled = true,
     BallReachSize = 5.0,
     BallVisualizer = true,
-    BallCollision = false,
-    AirDribbleHelper = false,
-    AirDribbleSize = 4.5,
-    AvatarStealerUser = "",
-    TargetTimeDelay = "DFIntTargetTimeDelayFactorTenths",
-    Interpolation = "FIntInterpolationMaxDelayMSec",
-    ConfigName = ""
+    AirDribbleHelper = false
 }
 
 local Colors = {
@@ -54,24 +46,7 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = TargetParent
 
--- MOBILE TOGGLE BUTTON (Yıldırım Butonunun Katman Seviyesi En Üste Alındı)
-local MobileToggleButton = Instance.new("TextButton")
-MobileToggleButton.Name = "DevLabs_MobileToggle"
-MobileToggleButton.Size = UDim2.new(0, 44, 0, 44)
-MobileToggleButton.Position = UDim2.new(0, 20, 0, 120)
-MobileToggleButton.BackgroundColor3 = Color3.fromRGB(15, 10, 25)
-MobileToggleButton.Text = "⚡"
-MobileToggleButton.TextColor3 = Color3.fromRGB(160, 90, 255)
-MobileToggleButton.TextSize = 20
-MobileToggleButton.Font = Enum.Font.GothamBold
-MobileToggleButton.ZIndex = 100 -- Menünün üzerine binmesini engellemek için en yüksek katman
-MobileToggleButton.Parent = ScreenGui
-Instance.new("UICorner", MobileToggleButton).CornerRadius = UDim.new(0, 8)
-local Stroke = Instance.new("UIStroke", MobileToggleButton)
-Stroke.Color = Colors.AccentPurple
-Stroke.Width = 2
-
--- Main UI Frame
+-- [1] ANA PANEL (Görünürlüğü Garanti Altına Alındı)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 540, 0, 340)
@@ -80,11 +55,11 @@ MainFrame.BackgroundColor3 = Colors.Background
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Visible = true
-MainFrame.ZIndex = 1
+MainFrame.ZIndex = 5
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 6)
 MainFrame.Parent = ScreenGui
 
--- Top Header Bar
+-- [2] ÜST BAR
 local TopHeader = Instance.new("Frame")
 TopHeader.Name = "TopHeader"
 TopHeader.Size = UDim2.new(1, 0, 0, 38)
@@ -94,26 +69,16 @@ Instance.new("UICorner", TopHeader).CornerRadius = UDim.new(0, 6)
 TopHeader.Parent = MainFrame
 
 local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Text = "  PHASE - TOUCHLINE"
+TitleLabel.Text = "  PHASE - TOUCHLINE (STABLE MOBILE)"
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 14
 TitleLabel.TextColor3 = Colors.TextWhite
-TitleLabel.Size = UDim2.new(0, 200, 1, 0)
+TitleLabel.Size = UDim2.new(0, 300, 1, 0)
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.Parent = TopHeader
 
-local CloseButton = Instance.new("TextButton")
-CloseButton.Text = "✕ "
-CloseButton.Font = Enum.Font.SourceSansBold
-CloseButton.TextSize = 14
-CloseButton.TextColor3 = Colors.TextMuted
-CloseButton.Size = UDim2.new(0, 38, 1, 0)
-CloseButton.Position = UDim2.new(1, -38, 0, 0)
-CloseButton.BackgroundTransparency = 1
-CloseButton.Parent = TopHeader
-
--- Left Sidebar Navigation
+-- [3] SOL MENÜ (Sadece Görsel Sabit Duracak)
 local NavigationSidebar = Instance.new("Frame")
 NavigationSidebar.Name = "NavigationSidebar"
 NavigationSidebar.Size = UDim2.new(0, 120, 1, -38)
@@ -122,113 +87,149 @@ NavigationSidebar.BackgroundColor3 = Colors.Sidebar
 NavigationSidebar.BorderSizePixel = 0
 NavigationSidebar.Parent = MainFrame
 
-local NavigationLayout = Instance.new("UIListLayout")
-NavigationLayout.Padding = UDim.new(0, 5)
-NavigationLayout.SortOrder = Enum.SortOrder.LayoutOrder
-NavigationLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-NavigationLayout.Parent = NavigationSidebar
+local SidebarLayout = Instance.new("UIListLayout")
+SidebarLayout.Padding = UDim.new(0, 5)
+SidebarLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+SidebarLayout.Parent = NavigationSidebar
 
--- Right Content Container
-local DisplayContainer = Instance.new("Frame")
-DisplayContainer.Name = "DisplayContainer"
-DisplayContainer.Size = UDim2.new(1, -130, 1, -48)
-DisplayContainer.Position = UDim2.new(0, 125, 0, 43)
-DisplayContainer.BackgroundTransparency = 1
-DisplayContainer.Parent = MainFrame
+local Tabs = {"Home", "Reach", "Ball", "Helpers", "Player", "Settings"}
+for _, tabName in ipairs(Tabs) do
+    local DummyBtn = Instance.new("TextButton")
+    DummyBtn.Size = UDim2.new(0, 110, 0, 32)
+    DummyBtn.BackgroundColor3 = (tabName == "Reach") and Colors.ComponentBg or Colors.Sidebar
+    DummyBtn.Text = "  " .. tabName
+    DummyBtn.Font = Enum.Font.SourceSans
+    DummyBtn.TextSize = 13
+    DummyBtn.TextColor3 = (tabName == "Reach") and Colors.TextWhite or Colors.TextMuted
+    DummyBtn.TextXAlignment = Enum.TextXAlignment.Left
+    Instance.new("UICorner", DummyBtn).CornerRadius = UDim.new(0, 4)
+    DummyBtn.Parent = NavigationSidebar
+end
 
-local PageViews = {}
-local TabClickers = {}
+-- [4] SAĞ İÇERİK ALANI (Siyah Ekranı Bitirmek İçin Tek Bir Büyük Liste Yapıldı!)
+local MainContentScroll = Instance.new("ScrollingFrame")
+MainContentScroll.Name = "MainContentScroll"
+MainContentScroll.Size = UDim2.new(1, -135, 1, -48)
+MainContentScroll.Position = UDim2.new(0, 130, 0, 43)
+MainContentScroll.BackgroundTransparency = 1
+MainContentScroll.BorderSizePixel = 0
+MainContentScroll.CanvasSize = UDim2.new(0, 0, 0, 550)
+MainContentScroll.ScrollBarThickness = 4
+MainContentScroll.ScrollBarImageColor3 = Colors.AccentPurple
+MainContentScroll.Visible = true
+MainContentScroll.Parent = MainFrame
 
-local function BuildTabWindow(TabTitle)
-    local WindowPage = Instance.new("ScrollingFrame")
-    WindowPage.Name = TabTitle .. "WindowPage"
-    WindowPage.Size = UDim2.new(1, 0, 1, 0)
-    WindowPage.BackgroundTransparency = 1
-    WindowPage.BorderSizePixel = 0
-    WindowPage.CanvasSize = UDim2.new(0, 0, 0, 450)
-    WindowPage.ScrollBarThickness = 3
-    WindowPage.ScrollBarImageColor3 = Colors.AccentPurple
-    WindowPage.Visible = false
-    WindowPage.Parent = DisplayContainer
+local ContentLayout = Instance.new("UIListLayout")
+ContentLayout.Padding = UDim.new(0, 8)
+ContentLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ContentLayout.Parent = MainContentScroll
 
-    local WindowLayout = Instance.new("UIListLayout")
-    WindowLayout.Padding = UDim.new(0, 6)
-    WindowLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    WindowLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    WindowLayout.Parent = WindowPage
+-- Yardımcı Fonksiyonlar (Arayüz Elemanları İçin)
+local function AddHeader(txt)
+    local Lbl = Instance.new("TextLabel")
+    Lbl.Text = " " .. txt:upper()
+    Lbl.Font = Enum.Font.SourceSansBold
+    Lbl.TextSize = 14
+    Lbl.TextColor3 = Colors.AccentPurple
+    Lbl.Size = UDim2.new(1, -10, 0, 25)
+    Lbl.BackgroundTransparency = 1
+    Lbl.TextXAlignment = Enum.TextXAlignment.Left
+    Lbl.Parent = MainContentScroll
+end
 
-    PageViews[TabTitle] = WindowPage
+local function AddInfo(txt)
+    local Box = Instance.new("Frame")
+    Box.Size = UDim2.new(1, -15, 0, 32)
+    Box.BackgroundColor3 = Colors.ComponentBg
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 4)
+    Box.Parent = MainContentScroll
 
-    local TabButton = Instance.new("TextButton")
-    TabButton.Size = UDim2.new(0, 110, 0, 32)
-    TabButton.BackgroundColor3 = Colors.Sidebar
-    TabButton.BorderSizePixel = 0
-    TabButton.Text = "  " .. TabTitle
-    TabButton.Font = Enum.Font.SourceSans
-    TabButton.TextSize = 13
-    TabButton.TextColor3 = Colors.TextMuted
-    TabButton.TextXAlignment = Enum.TextXAlignment.Left
-    TabButton.Parent = NavigationSidebar
-    Instance.new("UICorner", TabButton).CornerRadius = UDim.new(0, 4)
+    local Lbl = Instance.new("TextLabel")
+    Lbl.Text = "  " .. txt
+    Lbl.Font = Enum.Font.SourceSans
+    Lbl.TextSize = 13
+    Lbl.TextColor3 = Colors.TextWhite
+    Lbl.Size = UDim2.new(1, 0, 1, 0)
+    Lbl.TextXAlignment = Enum.TextXAlignment.Left
+    Lbl.BackgroundTransparency = 1
+    Lbl.Parent = Box
+end
 
-    -- Mobile Touch Safe Navigation Fix
-    TabButton.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            for pName, pObj in pairs(PageViews) do 
-                pObj.Visible = (pName == TabTitle) 
-            end
-            for bName, bObj in pairs(TabClickers) do
-                bObj.BackgroundColor3 = (bName == TabTitle) and Colors.ComponentBg or Colors.Sidebar
-                bObj.TextColor3 = (bName == TabTitle) and Colors.TextWhite or Colors.TextMuted
-            end
-        end
+local function AddToggle(txt, configKey)
+    local Box = Instance.new("Frame")
+    Box.Size = UDim2.new(1, -15, 0, 36)
+    Box.BackgroundColor3 = Colors.ComponentBg
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 4)
+    Box.Parent = MainContentScroll
+
+    local Lbl = Instance.new("TextLabel")
+    Lbl.Text = "  " .. txt
+    Lbl.Font = Enum.Font.SourceSans
+    Lbl.TextSize = 13
+    Lbl.TextColor3 = Colors.TextWhite
+    Lbl.Size = UDim2.new(0, 200, 1, 0)
+    Lbl.TextXAlignment = Enum.TextXAlignment.Left
+    Lbl.BackgroundTransparency = 1
+    Lbl.Parent = Box
+
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(0, 40, 0, 20)
+    Btn.Position = UDim2.new(1, -50, 0.5, -10)
+    Btn.BackgroundColor3 = SystemConfig[configKey] and Colors.AccentPurple or Color3.fromRGB(60, 60, 60)
+    Btn.Text = SystemConfig[configKey] and "ON" or "OFF"
+    Btn.Font = Enum.Font.SourceSansBold
+    Btn.TextSize = 11
+    Btn.TextColor3 = Colors.TextWhite
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4)
+    Btn.Parent = Box
+
+    Btn.MouseButton1Click:Connect(function()
+        SystemConfig[configKey] = not SystemConfig[configKey]
+        Btn.BackgroundColor3 = SystemConfig[configKey] and Colors.AccentPurple or Color3.fromRGB(60, 60, 60)
+        Btn.Text = SystemConfig[configKey] and "ON" or "OFF"
     end)
-    TabClickers[TabTitle] = TabButton
 end
 
-local ScreenTabsList = {"Home", "Reach", "Ball", "Helpers", "Player", "FFlag", "Settings"}
-for _, Name in ipairs(ScreenTabsList) do BuildTabWindow(Name) end
+local function AddSlider(txt, min, max, start, configKey)
+    local Box = Instance.new("Frame")
+    Box.Size = UDim2.new(1, -15, 0, 45)
+    Box.BackgroundColor3 = Colors.ComponentBg
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 4)
+    Box.Parent = MainContentScroll
 
--- Element Factories
-local function CreateCategoryHeader(TargetView, HeadingText)
-    local Label = Instance.new("TextLabel")
-    Label.Text = " " .. HeadingText
-    Label.Font = Enum.Font.SourceSansBold
-    Label.TextSize = 14
-    Label.TextColor3 = Colors.AccentPurple
-    Label.Size = UDim2.new(1, 0, 0, 24)
-    Label.BackgroundTransparency = 1
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Parent = TargetView
-end
+    local Lbl = Instance.new("TextLabel")
+    Lbl.Text = "  " .. txt .. " (" .. tostring(start) .. ")"
+    Lbl.Font = Enum.Font.SourceSans
+    Lbl.TextSize = 13
+    Lbl.TextColor3 = Colors.TextWhite
+    Lbl.Size = UDim2.new(1, 0, 0, 20)
+    Lbl.TextXAlignment = Enum.TextXAlignment.Left
+    Lbl.BackgroundTransparency = 1
+    Lbl.Parent = Box
 
-local function CreateDataDisplayStrip(TargetView, FieldText)
-    local Wrapper = Instance.new("Frame")
-    Wrapper.Size = UDim2.new(1, -10, 0, 32)
-    Wrapper.BackgroundColor3 = Colors.ComponentBg
-    Wrapper.BorderSizePixel = 0
-    Instance.new("UICorner", Wrapper).CornerRadius = UDim.new(0, 4)
-    Wrapper.Parent = TargetView
+    local Track = Instance.new("TextButton")
+    Track.Size = UDim2.new(1, -24, 0, 4)
+    Track.Position = UDim2.new(0, 12, 0, 28)
+    Track.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Track.Text = ""
+    Track.Parent = Box
 
-    local Context = Instance.new("TextLabel")
-    Context.Text = "  " .. FieldText
-    Context.Font = Enum.Font.SourceSans
-    Context.TextSize = 13
-    Context.TextColor3 = Colors.TextWhite
-    Context.Size = UDim2.new(1, 0, 1, 0)
-    Context.TextXAlignment = Enum.TextXAlignment.Left
-    Context.BackgroundTransparency = 1
-    Context.Parent = Wrapper
-    return Context
-end
+    local Bar = Instance.new("Frame")
+    Bar.Size = UDim2.new((start - min) / (max - min), 0, 1, 0)
+    Bar.BackgroundColor3 = Colors.AccentPurple
+    Bar.BorderSizePixel = 0
+    Bar.Parent = Track
 
-local function CreateToggleSwitch(TargetView, ActionText, TargetKey)
-    local RowWrapper = Instance.new("Frame")
-    RowWrapper.Size = UDim2.new(1, -10, 0, 34)
-    RowWrapper.BackgroundColor3 = Colors.ComponentBg
-    RowWrapper.BorderSizePixel = 0
-    Instance.new("UICorner", RowWrapper).CornerRadius = UDim.new(0, 4)
-    RowWrapper.Parent = TargetView
-
-    local DescriptiveText = Instance.new("TextLabel")
-    Descriptive
+    Track.MouseButton1Down:Connect(function()
+        local moveConn, upConn
+        local function update()
+            local mousePos = UserInputService:GetMouseLocation().X
+            local relPos = math.clamp((mousePos - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
+            local val = math.floor((min + (relPos * (max - min))) * 10) / 10
+            Bar.Size = UDim2.new(relPos, 0, 1, 0)
+            Lbl.Text = "  " .. txt .. " (" .. tostring(val) .. ")"
+            SystemConfig[configKey] = val
+        end
+        update()
+        moveConn = UserInputService.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
