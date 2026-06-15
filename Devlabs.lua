@@ -1,7 +1,7 @@
 --[[
-    DEVLABS - TOUCHLINE PREMIUM EDITION (ALL-IN-ONE FIXED SYSTEM)
+    DEVLABS - TOUCHLINE PREMIUM EDITION (CORE RECONSTRUCTION)
     Optimized perfectly for Delta Executor (Android, iOS & PC)
-    Fully verified core UI elements with stable mobile visibility toggling.
+    All UI components organized defensively to prevent load-crashing.
 --]]
 
 local UserInputService = game:GetService("UserInputService")
@@ -12,44 +12,17 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 --------------------------------------------------------------------------------
--- [CORE INTEGRITY & ANCHOR CLEANER]
+-- [1. GLOBAL SYSTEM CONFIGURATION (MUST LOAD FIRST)]
 --------------------------------------------------------------------------------
-local TargetParent = nil
-local ok, res = pcall(function()
-    if game:GetService("CoreGui"):FindFirstChild("RobloxGui") then
-        return game:GetService("CoreGui")
-    else
-        return LocalPlayer:WaitForChild("PlayerGui")
-    end
-end)
-TargetParent = ok and res or LocalPlayer:WaitForChild("PlayerGui")
-
-if TargetParent:FindFirstChild("Phase_Touchline") then
-    TargetParent:FindFirstChild("Phase_Touchline"):Destroy()
-end
-
---------------------------------------------------------------------------------
--- [EXACT COLOR & STATE SPECIFICATIONS]
---------------------------------------------------------------------------------
-local Colors = {
-    Background = Color3.fromRGB(11, 11, 11),
-    Sidebar = Color3.fromRGB(6, 6, 6),
-    ComponentBg = Color3.fromRGB(18, 18, 18),
-    AccentPurple = Color3.fromRGB(105, 55, 215),
-    TextWhite = Color3.fromRGB(245, 245, 245),
-    TextMuted = Color3.fromRGB(130, 130, 130),
-    Border = Color3.fromRGB(28, 28, 28)
-}
-
 local SystemConfig = {
     -- Reach States
-    LegReachEnabled = false,
+    LegReachEnabled = true,
     LegReachSize = 5.0,
-    LegVisualizer = false,
+    LegVisualizer = true,
     -- Ball States
-    BallReachEnabled = false,
+    BallReachEnabled = true,
     BallReachSize = 5.0,
-    BallVisualizer = false,
+    BallVisualizer = true,
     BallCollision = false,
     -- Helper States
     AirDribbleHelper = false,
@@ -66,7 +39,34 @@ local SystemConfig = {
 }
 
 --------------------------------------------------------------------------------
--- [MAIN APPLICATION SHELL ELEMENTS]
+-- [2. UI THEME COLORS & INTEGRITY CHECK]
+--------------------------------------------------------------------------------
+local Colors = {
+    Background = Color3.fromRGB(11, 11, 11),
+    Sidebar = Color3.fromRGB(6, 6, 6),
+    ComponentBg = Color3.fromRGB(18, 18, 18),
+    AccentPurple = Color3.fromRGB(105, 55, 215),
+    TextWhite = Color3.fromRGB(245, 245, 245),
+    TextMuted = Color3.fromRGB(130, 130, 130),
+    Border = Color3.fromRGB(28, 28, 28)
+}
+
+local TargetParent = nil
+local ok, res = pcall(function()
+    if game:GetService("CoreGui"):FindFirstChild("RobloxGui") then
+        return game:GetService("CoreGui")
+    else
+        return LocalPlayer:WaitForChild("PlayerGui")
+    end
+end)
+TargetParent = ok and res or LocalPlayer:WaitForChild("PlayerGui")
+
+if TargetParent:FindFirstChild("Phase_Touchline") then
+    TargetParent:FindFirstChild("Phase_Touchline"):Destroy()
+end
+
+--------------------------------------------------------------------------------
+-- [3. MAIN APPLICATION FRAME WORKSPACE]
 --------------------------------------------------------------------------------
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Phase_Touchline"
@@ -81,13 +81,14 @@ MainFrame.Position = UDim2.new(0.5, -320, 0.5, -205)
 MainFrame.BackgroundColor3 = Colors.Background
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
-MainFrame.Visible = true -- İlk çalıştırmada açık gelir
+MainFrame.Visible = true
+
 local CornerRadius = Instance.new("UICorner")
 CornerRadius.CornerRadius = UDim.new(0, 6)
 CornerRadius.Parent = MainFrame
 MainFrame.Parent = ScreenGui
 
--- App Window Header Line
+-- Top Bar Header Window
 local TopHeader = Instance.new("Frame")
 TopHeader.Name = "TopHeader"
 TopHeader.Size = UDim2.new(1, 0, 0, 42)
@@ -131,27 +132,27 @@ CloseButton.Parent = TopHeader
 CloseButton.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
 --------------------------------------------------------------------------------
--- [MOBİL AÇMA/KAPAMA BUTONU (TAM KORUMALI SABİTLEME)]
+-- [4. STABLE MOBILE TOGGLE BUTTON (⚡)]
 --------------------------------------------------------------------------------
 local MobileToggleButton = Instance.new("TextButton")
 MobileToggleButton.Name = "DevLabs_MobileToggle"
-MobileToggleButton.Size = UDim2.new(0, 50, 0, 50)
-MobileToggleButton.Position = UDim2.new(0, 15, 0, 15) -- Sol üst köşeye güvenli alan
-MobileToggleButton.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+MobileToggleButton.Size = UDim2.new(0, 45, 0, 45)
+MobileToggleButton.Position = UDim2.new(0, 15, 0, 120) -- Diğer butonlarla çakışmaması için sol ortalanmış korumalı alan
+MobileToggleButton.BackgroundColor3 = Color3.fromRGB(15, 10, 25)
 MobileToggleButton.Text = "⚡"
-MobileToggleButton.TextColor3 = Color3.fromRGB(0, 255, 255)
-MobileToggleButton.TextSize = 24
+MobileToggleButton.TextColor3 = Color3.fromRGB(160, 90, 255)
+MobileToggleButton.TextSize = 22
 MobileToggleButton.Font = Enum.Font.GothamBold
-MobileToggleButton.ZIndex = 10 -- Menünün üstünde kalması için
+MobileToggleButton.ZIndex = 10
 MobileToggleButton.Parent = ScreenGui
 
 local MobileCorner = Instance.new("UICorner", MobileToggleButton)
-MobileCorner.CornerRadius = UDim.new(0, 12)
+MobileCorner.CornerRadius = UDim.new(0, 10)
 local MobileBorder = Instance.new("UIStroke", MobileToggleButton)
 MobileBorder.Color = Colors.AccentPurple
 MobileBorder.Width = 2
 
--- Mobil Buton Sürükleme Sistemi
+-- Dragging Engine for Mobile Button
 local toggleDragging, toggleInput, toggleStart, toggleStartPos
 MobileToggleButton.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -177,13 +178,12 @@ MobileToggleButton.InputEnded:Connect(function(input)
     end
 end)
 
--- Kesin Görünürlük Tetikleyicisi
 MobileToggleButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
 --------------------------------------------------------------------------------
--- [SIDEBAR SECTIONS GENERATOR]
+-- [5. NAVIGATION SIDEBAR & LAYOUT FRAME GENERATOR]
 --------------------------------------------------------------------------------
 local NavigationSidebar = Instance.new("Frame")
 NavigationSidebar.Name = "NavigationSidebar"
@@ -220,7 +220,7 @@ local function BuildTabWindow(TabTitle)
     WindowPage.BackgroundTransparency = 1
     WindowPage.BorderSizePixel = 0
     WindowPage.CanvasSize = UDim2.new(0, 0, 0, 500)
-    WindowPage.ScrollBarThickness = 1
+    WindowPage.ScrollBarThickness = 2
     WindowPage.ScrollBarImageColor3 = Colors.AccentPurple
     WindowPage.Visible = false
     WindowPage.Parent = DisplayContainer
@@ -266,13 +266,15 @@ end
 
 local ScreenTabsList = {"Home", "Reach", "Ball", "Helpers", "Player", "FFlag", "Settings"}
 for _, Name in ipairs(ScreenTabsList) do BuildTabWindow(Name) end
+
+-- Activate Default Tab Safely
 PageViews["Home"].Visible = true
 TabClickers["Home"].BackgroundColor3 = Colors.ComponentBg
 TabClickers["Home"].TextColor3 = Colors.TextWhite
 TabClickers["Home"].Font = Enum.Font.SourceSansBold
 
 --------------------------------------------------------------------------------
--- [SYSTEM OBJECT COMPONENT BUILD FACTORY]
+-- [6. FACTORY DEFENSIVE BUILDING UTILITIES]
 --------------------------------------------------------------------------------
 local function CreateCategoryHeader(TargetView, HeadingText)
     local Label = Instance.new("TextLabel")
@@ -351,118 +353,4 @@ local function CreateToggleSwitch(TargetView, ActionText, TargetKey)
         SystemConfig[TargetKey] = not SystemConfig[TargetKey]
         local isCurrent = SystemConfig[TargetKey]
         TweenService:Create(CoreToggleBtn, TweenInfo.new(0.12), {BackgroundColor3 = isCurrent and Colors.AccentPurple or Color3.fromRGB(50, 50, 50)}):Play()
-        TweenService:Create(InternalNode, TweenInfo.new(0.12), {Position = isCurrent and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)}):Play()
-    end)
-end
-
-local function CreateSliderTrack(TargetView, DisplayTitle, FloorValue, CeilingValue, InitialValue, TargetKey)
-    local SliderBox = Instance.new("Frame")
-    SliderBox.Size = UDim2.new(1, 0, 0, 52)
-    SliderBox.BackgroundColor3 = Colors.ComponentBg
-    SliderBox.BorderSizePixel = 0
-    local BoxCorner = Instance.new("UICorner")
-    BoxCorner.CornerRadius = UDim.new(0, 4)
-    BoxCorner.Parent = SliderBox
-    SliderBox.Parent = TargetView
-
-    local TitleField = Instance.new("TextLabel")
-    TitleField.Text = "  " .. DisplayTitle
-    TitleField.Font = Enum.Font.SourceSans
-    TitleField.TextSize = 13
-    TitleField.TextColor3 = Colors.TextWhite
-    TitleField.Position = UDim2.new(0, 0, 0, 6)
-    TitleField.Size = UDim2.new(0, 200, 0, 16)
-    TitleField.TextXAlignment = Enum.TextXAlignment.Left
-    TitleField.BackgroundTransparency = 1
-    TitleField.Parent = SliderBox
-
-    local QuantifierLabel = Instance.new("TextLabel")
-    QuantifierLabel.Text = tostring(InitialValue) .. "  "
-    QuantifierLabel.Font = Enum.Font.SourceSans
-    QuantifierLabel.TextSize = 13
-    QuantifierLabel.TextColor3 = Colors.AccentPurple
-    QuantifierLabel.Position = UDim2.new(1, -50, 0, 6)
-    QuantifierLabel.Size = UDim2.new(0, 40, 0, 16)
-    QuantifierLabel.TextXAlignment = Enum.TextXAlignment.Right
-    QuantifierLabel.BackgroundTransparency = 1
-    QuantifierLabel.Parent = SliderBox
-
-    local LinearTrack = Instance.new("TextButton")
-    LinearTrack.Size = UDim2.new(1, -24, 0, 3)
-    LinearTrack.Position = UDim2.new(0, 12, 0, 36)
-    LinearTrack.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    LinearTrack.Text = ""
-    LinearTrack.AutoButtonColor = false
-    LinearTrack.Parent = SliderBox
-
-    local ExpansionBar = Instance.new("Frame")
-    ExpansionBar.Size = UDim2.new((InitialValue - FloorValue) / (CeilingValue - FloorValue), 0, 1, 0)
-    ExpansionBar.BackgroundColor3 = Colors.AccentPurple
-    ExpansionBar.BorderSizePixel = 0
-    ExpansionBar.Parent = LinearTrack
-
-    local ActiveHold = false
-
-    local function RecalculateMetrics(InputEvent)
-        local ClampedPercentage = math.clamp((InputEvent.Position.X - LinearTrack.AbsolutePosition.X) / LinearTrack.AbsoluteSize.X, 0, 1)
-        local ScaledRaw = FloorValue + (ClampedPercentage * (CeilingValue - FloorValue))
-        local RoundedValue = math.floor(ScaledRaw * 10) / 10
-        QuantifierLabel.Text = tostring(RoundedValue) .. "  "
-        ExpansionBar.Size = UDim2.new(ClampedPercentage, 0, 1, 0)
-        SystemConfig[TargetKey] = RoundedValue
-    end
-
-    LinearTrack.InputBegan:Connect(function(InputEvent)
-        if InputEvent.UserInputType == Enum.UserInputType.MouseButton1 or InputEvent.UserInputType == Enum.UserInputType.Touch then
-            ActiveHold = true
-            RecalculateMetrics(InputEvent)
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(InputEvent)
-        if ActiveHold and (InputEvent.UserInputType == Enum.UserInputType.MouseMovement or InputEvent.UserInputType == Enum.UserInputType.Touch) then
-            RecalculateMetrics(InputEvent)
-        end
-    end)
-
-    UserInputService.InputEnded:Connect(function(InputEvent)
-        if InputEvent.UserInputType == Enum.UserInputType.MouseButton1 or InputEvent.UserInputType == Enum.UserInputType.Touch then
-            ActiveHold = false
-        end
-    end)
-end
-
-local function CreateInputTextBox(TargetView, PlaceholderDescriptor, TargetKey)
-    local BlockWrapper = Instance.new("Frame")
-    BlockWrapper.Size = UDim2.new(1, 0, 0, 38)
-    BlockWrapper.BackgroundColor3 = Colors.ComponentBg
-    BlockWrapper.BorderSizePixel = 0
-    local BoxCorner = Instance.new("UICorner")
-    BoxCorner.CornerRadius = UDim.new(0, 4)
-    BoxCorner.Parent = BlockWrapper
-    BlockWrapper.Parent = TargetView
-
-    local DedicatedInput = Instance.new("TextBox")
-    DedicatedInput.PlaceholderText = PlaceholderDescriptor
-    DedicatedInput.Text = SystemConfig[TargetKey] or ""
-    DedicatedInput.Font = Enum.Font.SourceSans
-    DedicatedInput.TextSize = 13
-    DedicatedInput.TextColor3 = Colors.TextWhite
-    DedicatedInput.PlaceholderColor3 = Colors.TextMuted
-    DedicatedInput.Size = UDim2.new(1, -20, 1, 0)
-    DedicatedInput.Position = UDim2.new(0, 10, 0, 0)
-    DedicatedInput.BackgroundTransparency = 1
-    DedicatedInput.TextXAlignment = Enum.TextXAlignment.Left
-    DedicatedInput.Parent = BlockWrapper
-
-    DedicatedInput.FocusLost:Connect(function()
-        SystemConfig[TargetKey] = DedicatedInput.Text
-    end)
-    return DedicatedInput
-end
-
-local function CreateActionClicker(TargetView, LabelString, TriggerFunction)
-    local FrameButton = Instance.new("TextButton")
-    FrameButton.Size = UDim2.new(1, 0, 0, 36)
-    FrameButton.BackgroundColor3 = Colors.ComponentBg
-    FrameButton.
+        TweenService:Create(InternalNode, TweenInfo.new(0.12), {Position = isCurrent and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)}):Play
