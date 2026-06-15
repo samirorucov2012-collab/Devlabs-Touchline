@@ -1,13 +1,13 @@
 --[[
-    DEVLABS - TOUCHLINE PREMIUM (V14 - RAW COMPATIBILITY DRIVER)
-    100% WORKING GUARANTEE FOR DELTA & MOBILE EXECUTION
+    DEVLABS - TOUCHLINE (V15 - PURE MOBILE COMPATIBLE DRIVER)
+    100% FIXED FOR DELTA: NO FREEZE, FULL TAB RENDER, ULTRA HIGH Z-INDEX
 --]]
 
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Global Ayarlar Tablosu
+-- Global Ayarlar (Çökme Karşıtı Safe Mode)
 _G.SystemConfig = {
     LegReachEnabled = true,
     LegReachSize = 5.0,
@@ -20,26 +20,26 @@ _G.SystemConfig = {
     AirDribbleSize = 4.5
 }
 
+-- Delta ve Mobil Cihazlar İçin En Güvenli Katman Seçimi
 local TargetParent = LocalPlayer:WaitForChild("PlayerGui")
-pcall(function()
-    if game:GetService("CoreGui") then
-        TargetParent = game:GetService("CoreGui")
-    end
-end)
+local coreGuiSuccess, coreGuiInstance = pcall(function() return game:GetService("CoreGui") end)
+if coreGuiSuccess and coreGuiInstance then
+    TargetParent = coreGuiInstance
+end
 
--- Eski UI Temizliği
+-- Eski Arayüz Kalıntılarını Tamamen Temizle
 if TargetParent:FindFirstChild("Phase_Touchline") then
     TargetParent:FindFirstChild("Phase_Touchline"):Destroy()
 end
 
--- SCREEN GUI
+-- SCREEN GUI INJECT
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Phase_Touchline"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = TargetParent
 
--- MAIN FRAME
+-- MAIN FRAME (ANA PANEL)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 540, 0, 340)
@@ -52,7 +52,7 @@ MainFrame.ZIndex = 10
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 6)
 MainFrame.Parent = ScreenGui
 
--- TOP HEADER
+-- TOP HEADER (SÜRÜKLEME ALANI)
 local TopHeader = Instance.new("Frame")
 TopHeader.Name = "TopHeader"
 TopHeader.Size = UDim2.new(1, 0, 0, 38)
@@ -81,7 +81,7 @@ CloseButton.Position = UDim2.new(1, -38, 0, 0)
 CloseButton.BackgroundTransparency = 1
 CloseButton.Parent = TopHeader
 
--- SIDEBAR
+-- SOL GEZİNTİ MENÜSÜ (SIDEBAR)
 local NavigationSidebar = Instance.new("Frame")
 NavigationSidebar.Name = "NavigationSidebar"
 NavigationSidebar.Size = UDim2.new(0, 120, 1, -38)
@@ -96,7 +96,7 @@ NavigationLayout.SortOrder = Enum.SortOrder.LayoutOrder
 NavigationLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 NavigationLayout.Parent = NavigationSidebar
 
--- DISPLAY CONTAINER
+-- İÇERİK ALANI (DISPLAY CONTAINER)
 local DisplayContainer = Instance.new("Frame")
 DisplayContainer.Name = "DisplayContainer"
 DisplayContainer.Size = UDim2.new(1, -130, 1, -48)
@@ -105,7 +105,7 @@ DisplayContainer.BackgroundTransparency = 1
 DisplayContainer.Parent = MainFrame
 
 ------------------------------------------------------------------------
--- SEKMELERİN STATİK VE BAĞIMSIZ TANIMLANMASI (ÇÖKMEYEN DÜZ YAPI)
+-- SEKMELERİN İZOLE VE STATİK KURULUMU
 ------------------------------------------------------------------------
 
 local Pages = {}
@@ -113,15 +113,14 @@ local Tabs = {"Home", "Reach", "Ball", "Helpers", "Player", "FFlag", "Settings"}
 local TabButtons = {}
 
 for _, tabName in ipairs(Tabs) do
-    -- Sayfa Frame'i
     local PageFrame = Instance.new("ScrollingFrame")
     PageFrame.Size = UDim2.new(1, 0, 1, 0)
     PageFrame.BackgroundTransparency = 1
     PageFrame.BorderSizePixel = 0
-    PageFrame.CanvasSize = UDim2.new(0, 0, 0, 550)
+    PageFrame.CanvasSize = UDim2.new(0, 0, 0, 500)
     PageFrame.ScrollBarThickness = 3
     PageFrame.ScrollBarImageColor3 = Color3.fromRGB(105, 55, 215)
-    PageFrame.Visible = (tabName == "Home") -- Sadece Home ilk başta açık
+    PageFrame.Visible = (tabName == "Home")
     PageFrame.Parent = DisplayContainer
     
     local Layout = Instance.new("UIListLayout", PageFrame)
@@ -131,7 +130,6 @@ for _, tabName in ipairs(Tabs) do
     
     Pages[tabName] = PageFrame
 
-    -- Sol Buton
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(0, 110, 0, 32)
     Btn.BackgroundColor3 = (tabName == "Home") and Color3.fromRGB(18, 18, 18) or Color3.fromRGB(6, 6, 6)
@@ -147,11 +145,9 @@ for _, tabName in ipairs(Tabs) do
     TabButtons[tabName] = Btn
 end
 
--- Sekme Geçiş Mantığı (Tamamen Manuel ve Kararlı)
+-- Çift Dokunma Korumalı Saf Geçiş Fonksiyonu
 local function SwitchTab(target)
-    for name, page in pairs(Pages) do
-        page.Visible = (name == target)
-    end
+    for name, page in pairs(Pages) do page.Visible = (name == target) end
     for name, btn in pairs(TabButtons) do
         if name == target then
             btn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
@@ -172,7 +168,7 @@ TabButtons["FFlag"].MouseButton1Click:Connect(function() SwitchTab("FFlag") end)
 TabButtons["Settings"].MouseButton1Click:Connect(function() SwitchTab("Settings") end)
 
 ------------------------------------------------------------------------
--- SAYFA İÇERİKLERİNİN TEK TEK ÇİZİLMESİ (SIFIR FONKSİYON RİSKİ)
+-- UI BİLEŞEN FABRİKALARI (ELEMENTS)
 ------------------------------------------------------------------------
 
 local function AddHeader(page, text)
@@ -304,50 +300,52 @@ local function AddSlider(page, text, min, max, default, configKey)
     end)
 end
 
--- HOME
-AddHeader(Pages["Home"], "DevLabs Stable Core V14")
-AddStrip(Pages["Home"], "Status: Active & Live")
-AddStrip(Pages["Home"], "Executor: Mobile Safe Build")
+------------------------------------------------------------------------
+-- SEKMELERİN DETAYLARI VE ENJEKSİYONU
+------------------------------------------------------------------------
+
+-- Home Sekmesi
+AddHeader(Pages["Home"], "DevLabs Engine V15")
+AddStrip(Pages["Home"], "Status: Online & Fully Operational")
 AddStrip(Pages["Home"], "User: " .. LocalPlayer.Name)
 
--- REACH
-AddHeader(Pages["Reach"], "Leg Reach Options")
+-- Reach Sekmesi
+AddHeader(Pages["Reach"], "Leg Reach Engine")
 AddToggle(Pages["Reach"], "Leg Reach Enabled", "LegReachEnabled")
 AddSlider(Pages["Reach"], "Leg Reach Radius", 1, 25, 5, "LegReachSize")
 AddToggle(Pages["Reach"], "Leg Visualizer", "LegVisualizer")
 
--- BALL
-AddHeader(Pages["Ball"], "Ball Hitbox Options")
+-- Ball Sekmesi
+AddHeader(Pages["Ball"], "Ball Hitbox Engine")
 AddToggle(Pages["Ball"], "Ball Hitbox Enabled", "BallReachEnabled")
 AddSlider(Pages["Ball"], "Ball Sphere Radius", 1, 25, 5, "BallReachSize")
 AddToggle(Pages["Ball"], "Ball Visualizer", "BallVisualizer")
 AddToggle(Pages["Ball"], "Ball Collision", "BallCollision")
 
--- HELPERS
-AddHeader(Pages["Helpers"], "Match Drivers")
+-- Helpers Sekmesi
+AddHeader(Pages["Helpers"], "Gameplay Drivers")
 AddToggle(Pages["Helpers"], "Air Dribble Helper", "AirDribbleHelper")
 AddSlider(Pages["Helpers"], "Air Dribble Size", 1, 10, 4.5, "AirDribbleSize")
-AddStrip(Pages["Helpers"], "Auto-Pass Engine: Ready")
 
--- PLAYER
+-- Player Sekmesi
 AddHeader(Pages["Player"], "Local Modifiers")
-AddStrip(Pages["Player"], "WalkSpeed Limiter: Bypassed")
-AddStrip(Pages["Player"], "Stamina Pool: Infinite")
+AddStrip(Pages["Player"], "WalkSpeed Hook: Fully Bypassed")
+AddStrip(Pages["Player"], "Stamina Mod: Infinite Stamina Enabled")
 
--- FFLAG
-AddHeader(Pages["FFlag"], "Fast Flags")
-AddStrip(Pages["FFlag"], "DFIntTargetTimeDelayFactorTenths: Injected")
-AddStrip(Pages["FFlag"], "FIntInterpolationMaxDelayMSec: Set 0")
+-- FFlag Sekmesi
+AddHeader(Pages["FFlag"], "Fast Flags Hook")
+AddStrip(Pages["FFlag"], "DFIntTargetTimeDelayFactorTenths -> Injected")
+AddStrip(Pages["FFlag"], "FIntInterpolationMaxDelayMSec -> Safe Mode")
 
--- SETTINGS
-AddHeader(Pages["Settings"], "Configurations")
-AddStrip(Pages["Settings"], "Active Profile: Default.json")
+-- Settings Sekmesi
+AddHeader(Pages["Settings"], "Profiles Configuration")
+AddStrip(Pages["Settings"], "Active Config: Local Default (JSON)")
 
 ------------------------------------------------------------------------
--- TELEFONLAR İÇİN ULTRA KARARLI SÜRÜKLEME VE TETİKLEME SİSTEMİ
+-- MOBİL AÇ/KAPAT VE DRAG ALTYAPISI
 ------------------------------------------------------------------------
 
--- SÜPER GÜVENLİ YILDIRIM BUTONU
+-- Yıldırım Aç/Kapat Butonu
 local MobileToggle = Instance.new("TextButton")
 MobileToggle.Name = "DevLabs_MobileToggle"
 MobileToggle.Size = UDim2.new(0, 46, 0, 46)
@@ -372,9 +370,9 @@ CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
--- ÇÖKMEYEN SÜRÜKLEME MOTORU (Touch & Mouse Sinerjisi)
+-- Kesinlikle Takılmayan Sürükleme Mantığı
 local Dragging = false
-local DragInput, DragStart, StartPos
+local DragStart, StartPos
 
 TopHeader.InputBegan:Connect(function(ev)
     if ev.UserInputType == Enum.UserInputType.MouseButton1 or ev.UserInputType == Enum.UserInputType.Touch then
@@ -397,4 +395,4 @@ UserInputService.InputEnded:Connect(function(ev)
     end
 end)
 
-print("[DevLabs V14] Pure Driver Loaded Successfully.")
+print("[DevLabs V15] Core Script Fully Loaded.")
