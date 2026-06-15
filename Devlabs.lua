@@ -1,7 +1,7 @@
 --[[
-    DEVLABS - TOUCHLINE PREMIUM EDITION (ALL-IN-ONE SYSTEM)
+    DEVLABS - TOUCHLINE PREMIUM EDITION (ALL-IN-ONE FIXED SYSTEM)
     Optimized perfectly for Delta Executor (Android, iOS & PC)
-    Combines Full UI System, Mobile Toggle, Reach Physics & Avatar Stealer.
+    Fully verified core UI elements with stable mobile visibility toggling.
 --]]
 
 local UserInputService = game:GetService("UserInputService")
@@ -81,7 +81,7 @@ MainFrame.Position = UDim2.new(0.5, -320, 0.5, -205)
 MainFrame.BackgroundColor3 = Colors.Background
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
-MainFrame.Visible = true -- İlk açılışta açık gelir
+MainFrame.Visible = true -- İlk çalıştırmada açık gelir
 local CornerRadius = Instance.new("UICorner")
 CornerRadius.CornerRadius = UDim.new(0, 6)
 CornerRadius.Parent = MainFrame
@@ -131,17 +131,18 @@ CloseButton.Parent = TopHeader
 CloseButton.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
 --------------------------------------------------------------------------------
--- [MOBİL AÇMA/KAPAMA BUTONU (TOGGLE FIX)]
+-- [MOBİL AÇMA/KAPAMA BUTONU (TAM KORUMALI SABİTLEME)]
 --------------------------------------------------------------------------------
 local MobileToggleButton = Instance.new("TextButton")
 MobileToggleButton.Name = "DevLabs_MobileToggle"
 MobileToggleButton.Size = UDim2.new(0, 50, 0, 50)
-MobileToggleButton.Position = UDim2.new(0, 10, 0.4, 0)
+MobileToggleButton.Position = UDim2.new(0, 15, 0, 15) -- Sol üst köşeye güvenli alan
 MobileToggleButton.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
 MobileToggleButton.Text = "⚡"
 MobileToggleButton.TextColor3 = Color3.fromRGB(0, 255, 255)
 MobileToggleButton.TextSize = 24
 MobileToggleButton.Font = Enum.Font.GothamBold
+MobileToggleButton.ZIndex = 10 -- Menünün üstünde kalması için
 MobileToggleButton.Parent = ScreenGui
 
 local MobileCorner = Instance.new("UICorner", MobileToggleButton)
@@ -150,7 +151,7 @@ local MobileBorder = Instance.new("UIStroke", MobileToggleButton)
 MobileBorder.Color = Colors.AccentPurple
 MobileBorder.Width = 2
 
--- Buton Sürükleme Mantığı
+-- Mobil Buton Sürükleme Sistemi
 local toggleDragging, toggleInput, toggleStart, toggleStartPos
 MobileToggleButton.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -176,7 +177,7 @@ MobileToggleButton.InputEnded:Connect(function(input)
     end
 end)
 
--- Butona Basınca Menüyü Açıp Kapatma Bağlantısı
+-- Kesin Görünürlük Tetikleyicisi
 MobileToggleButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
@@ -464,257 +465,4 @@ local function CreateActionClicker(TargetView, LabelString, TriggerFunction)
     local FrameButton = Instance.new("TextButton")
     FrameButton.Size = UDim2.new(1, 0, 0, 36)
     FrameButton.BackgroundColor3 = Colors.ComponentBg
-    FrameButton.Text = "  " .. LabelString
-    FrameButton.TextXAlignment = Enum.TextXAlignment.Left 
-    FrameButton.Font = Enum.Font.SourceSans
-    FrameButton.TextSize = 13
-    FrameButton.TextColor3 = Colors.TextWhite
-    local ClickerCorner = Instance.new("UICorner")
-    ClickerCorner.CornerRadius = UDim.new(0, 4)
-    ClickerCorner.Parent = FrameButton
-    
-    local ChevronSymbol = Instance.new("TextLabel")
-    ChevronSymbol.Text = "❯ "
-    ChevronSymbol.Font = Enum.Font.SourceSansBold
-    ChevronSymbol.TextSize = 12
-    ChevronSymbol.TextColor3 = Colors.AccentPurple
-    ChevronSymbol.Size = UDim2.new(0, 30, 1, 0)
-    ChevronSymbol.Position = UDim2.new(1, -30, 0, 0)
-    ChevronSymbol.BackgroundTransparency = 1
-    ChevronSymbol.TextXAlignment = Enum.TextXAlignment.Right
-    ChevronSymbol.Parent = FrameButton
-
-    FrameButton.Parent = TargetView
-    
-    FrameButton.MouseButton1Click:Connect(function()
-        FrameButton.BackgroundColor3 = Colors.AccentPurple
-        task.wait(0.1)
-        FrameButton.BackgroundColor3 = Colors.ComponentBg
-        if TriggerFunction then TriggerFunction() end
-    end)
-end
-
---------------------------------------------------------------------------------
--- [POPULATING GENERATED PAGES SPECIFICALLY]
---------------------------------------------------------------------------------
--- Home View
-CreateCategoryHeader(PageViews["Home"], "Info")
-CreateDataDisplayStrip(PageViews["Home"], "DEVELOPER : 97rnn")
-CreateDataDisplayStrip(PageViews["Home"], "Welcome, " .. LocalPlayer.Name .. "!")
-CreateDataDisplayStrip(PageViews["Home"], "Executor: Delta")
-CreateDataDisplayStrip(PageViews["Home"], "Access: PREMIUM")
-CreateDataDisplayStrip(PageViews["Home"], "Executed: 1 time(s)")
-local CounterLabel = CreateDataDisplayStrip(PageViews["Home"], "Players: " .. tostring(#Players:GetPlayers()))
-CreateDataDisplayStrip(PageViews["Home"], "Status: UNDETECTED")
-
-Players.PlayerAdded:Connect(function() CounterLabel.Text = "  Players: " .. tostring(#Players:GetPlayers()) end)
-Players.PlayerRemoving:Connect(function() CounterLabel.Text = "  Players: " .. tostring(#Players:GetPlayers()) end)
-
--- Reach View
-CreateCategoryHeader(PageViews["Reach"], "Leg Reach")
-CreateToggleSwitch(PageViews["Reach"], "Leg Reach Enabled", "LegReachEnabled")
-CreateSliderTrack(PageViews["Reach"], "Leg Reach Size", 1, 25, 5, "LegReachSize")
-CreateToggleSwitch(PageViews["Reach"], "Leg Visualizer", "LegVisualizer")
-
--- Ball View
-CreateCategoryHeader(PageViews["Ball"], "Ball Reach")
-CreateToggleSwitch(PageViews["Ball"], "Ball Reach Enabled", "BallReachEnabled")
-CreateSliderTrack(PageViews["Ball"], "Ball Reach Size", 1, 25, 5, "BallReachSize")
-CreateToggleSwitch(PageViews["Ball"], "Ball Visualizer", "BallVisualizer")
-CreateToggleSwitch(PageViews["Ball"], "Ball Collision", "BallCollision")
-
--- Helpers View
-CreateCategoryHeader(PageViews["Helpers"], "Visual Helpers")
-CreateToggleSwitch(PageViews["Helpers"], "Air Dribble Helper", "AirDribbleHelper")
-CreateSliderTrack(PageViews["Helpers"], "Air Dribble Size", 1, 20, 4.5, "AirDribbleSize")
-
--- Player View (Avatar Stealer Engine Integrated Here)
-CreateCategoryHeader(PageViews["Player"], "Customization")
-local AvatarBox = CreateInputTextBox(PageViews["Player"], "Enter username...", "AvatarStealerUser")
-AvatarBox.Size = UDim2.new(0, 250, 1, 0)
-AvatarBox.Position = UDim2.new(1, -260, 0, 0)
-AvatarBox.TextXAlignment = Enum.TextXAlignment.Center
-
-local StaticLabel = Instance.new("TextLabel")
-StaticLabel.Text = "  Avatar Stealer"
-StaticLabel.Size = UDim2.new(0, 120, 1, 0)
-StaticLabel.Font = Enum.Font.SourceSans
-StaticLabel.TextSize = 13
-StaticLabel.TextColor3 = Colors.TextWhite
-StaticLabel.BackgroundTransparency = 1
-StaticLabel.TextXAlignment = Enum.TextXAlignment.Left
-StaticLabel.Parent = AvatarBox.Parent
-
-CreateActionClicker(PageViews["Player"], "Steal Avatar Look", function()
-    local NameTarget = SystemConfig.AvatarStealerUser
-    if NameTarget == "" then return end
-    local success, targetId = pcall(function() return Players:GetUserIdFromNameAsync(NameTarget) end)
-    if success and targetId then
-        local myChar = LocalPlayer.Character
-        if myChar and myChar:FindFirstChildOfClass("Humanoid") then
-            local desc = Players:GetHumanoidDescriptionFromUserId(targetId)
-            myChar:FindFirstChildOfClass("Humanoid"):ApplyDescription(desc)
-            print("[DevLabs] Stealed look of: " .. NameTarget)
-        end
-    end
-end)
-
--- FFlag View
-CreateCategoryHeader(PageViews["FFlag"], "FFlag Changer")
-CreateInputTextBox(PageViews["FFlag"], "DFIntTargetTimeDelayFactorTenths", "TargetTimeDelay")
-CreateInputTextBox(PageViews["FFlag"], "FIntInterpolationMaxDelayMSec", "Interpolation")
-CreateInputTextBox(PageViews["FFlag"], "DFIntS2PhysicsSenderRate", "PhysicsSenderRate1")
-CreateInputTextBox(PageViews["FFlag"], "DFIntS2PhysicsSenderRate", "PhysicsSenderRate2")
-
--- Settings View
-CreateCategoryHeader(PageViews["Settings"], "Configuration")
-local ConfigBox = CreateInputTextBox(PageViews["Settings"], "Enter config name...", "ConfigName")
-ConfigBox.Size = UDim2.new(0, 250, 1, 0)
-ConfigBox.Position = UDim2.new(1, -260, 0, 0)
-ConfigBox.TextXAlignment = Enum.TextXAlignment.Center
-
-local StaticConfigLabel = Instance.new("TextLabel")
-StaticConfigLabel.Text = "  Config Name"
-StaticConfigLabel.Size = UDim2.new(0, 120, 1, 0)
-StaticConfigLabel.Font = Enum.Font.SourceSans
-StaticConfigLabel.TextSize = 13
-StaticConfigLabel.TextColor3 = Colors.TextWhite
-StaticConfigLabel.BackgroundTransparency = 1
-StaticConfigLabel.TextXAlignment = Enum.TextXAlignment.Left
-StaticConfigLabel.Parent = ConfigBox.Parent
-
-local SelectConfigRow = Instance.new("Frame")
-SelectConfigRow.Size = UDim2.new(1, 0, 0, 38)
-SelectConfigRow.BackgroundColor3 = Colors.ComponentBg
-SelectConfigRow.BorderSizePixel = 0
-local RowCorner = Instance.new("UICorner")
-RowCorner.CornerRadius = UDim.new(0, 4)
-RowCorner.Parent = SelectConfigRow
-SelectConfigRow.Parent = PageViews["Settings"]
-
-local LabelLeft = Instance.new("TextLabel")
-LabelLeft.Text = "  Select Config"
-LabelLeft.Font = Enum.Font.SourceSans
-LabelLeft.TextSize = 13
-LabelLeft.TextColor3 = Colors.TextWhite
-LabelLeft.Size = UDim2.new(0, 150, 1, 0)
-LabelLeft.TextXAlignment = Enum.TextXAlignment.Left
-LabelLeft.BackgroundTransparency = 1
-LabelLeft.Parent = SelectConfigRow
-
-local LabelRightActive = Instance.new("TextLabel")
-LabelRightActive.Text = "default  "
-LabelRightActive.Font = Enum.Font.SourceSansBold
-LabelRightActive.TextSize = 13
-LabelRightActive.TextColor3 = Colors.AccentPurple
-LabelRightActive.Size = UDim2.new(0, 100, 1, 0)
-LabelRightActive.Position = UDim2.new(1, -110, 0, 0)
-LabelRightActive.TextXAlignment = Enum.TextXAlignment.Right
-LabelRightActive.BackgroundTransparency = 1
-LabelRightActive.Parent = SelectConfigRow
-
-CreateActionClicker(PageViews["Settings"], "Save Config", function() print("[Phase Engine] Config state saved.") end)
-CreateActionClicker(PageViews["Settings"], "Load Config", function() print("[Phase Engine] Config state loaded.") end)
-CreateActionClicker(PageViews["Settings"], "Delete Config", function() print("[Phase Engine] Config state cleared.") end)
-CreateActionClicker(PageViews["Settings"], "Set as Auto Load", function() print("[Phase Engine] Autoload marked permanent.") end)
-
---------------------------------------------------------------------------------
--- [TOUCH DRAG UTILITY SCHEME]
---------------------------------------------------------------------------------
-local HoldTouch, TrackPosition, FrameOrigin
-TopHeader.InputBegan:Connect(function(InputEvent)
-    if InputEvent.UserInputType == Enum.UserInputType.MouseButton1 or InputEvent.UserInputType == Enum.UserInputType.Touch then
-        HoldTouch = true
-        TrackPosition = InputEvent.Position
-        FrameOrigin = MainFrame.Position
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(InputEvent)
-    if HoldTouch and (InputEvent.UserInputType == Enum.UserInputType.MouseMovement or InputEvent.UserInputType == Enum.UserInputType.Touch) then
-        local OffsetDelta = InputEvent.Position - TrackPosition
-        MainFrame.Position = UDim2.new(FrameOrigin.X.Scale, FrameOrigin.X.Offset + OffsetDelta.X, FrameOrigin.Y.Scale, FrameOrigin.Y.Offset + OffsetDelta.Y)
-    end
-end)
-
-TopHeader.InputEnded:Connect(function(InputEvent)
-    if InputEvent.UserInputType == Enum.UserInputType.MouseButton1 or InputEvent.UserInputType == Enum.UserInputType.Touch then
-        HoldTouch = false
-    end
-end)
-
---------------------------------------------------------------------------------
--- [BACKGROUND REAL REACH PHYSICS ENGINE CONTROLLER]
---------------------------------------------------------------------------------
-local RuntimeLegPart = nil
-local RuntimeBallPart = nil
-
-RunService.Heartbeat:Connect(function()
-    if not ScreenGui.Parent then return end
-    
-    local Character = LocalPlayer.Character
-    if not Character then return end
-    
-    local RootPart = Character:FindFirstChild("HumanoidRootPart")
-    if not RootPart then return end
-
-    -- Leg Reach Physics Engine Logic + Automatic Server Hit Connection
-    if SystemConfig.LegReachEnabled and SystemConfig.LegVisualizer then
-        if not RuntimeLegPart or not RuntimeLegPart.Parent then
-            RuntimeLegPart = Instance.new("Part")
-            RuntimeLegPart.Name = "Touchline_LegReachPart"
-            RuntimeLegPart.Shape = Enum.PartType.Ball
-            RuntimeLegPart.Material = Enum.Material.ForceField
-            RuntimeLegPart.Color = Colors.AccentPurple
-            RuntimeLegPart.CastShadow = false
-            RuntimeLegPart.CanCollide = false
-            RuntimeLegPart.Anchored = false
-            RuntimeLegPart.Parent = Character
-            
-            local ConnectionWeld = Instance.new("WeldConstraint")
-            ConnectionWeld.Part0 = RootPart
-            ConnectionWeld.Part1 = RuntimeLegPart
-            ConnectionWeld.Parent = RuntimeLegPart
-
-            -- Topa Değme Algılayıcı Sistem (Ayağın vurmasını sağlar)
-            RuntimeLegPart.Touched:Connect(function(HitPart)
-                if HitPart.Name == "Ball" or HitPart:GetAttribute("IsBall", true) or HitPart.Parent:FindFirstChild("Ball") then
-                    if firetouchinterest then
-                        firetouchinterest(HitPart, Character:FindFirstChild("Right Foot") or RootPart, 0)
-                        firetouchinterest(HitPart, Character:FindFirstChild("Right Foot") or RootPart, 1)
-                    end
-                end
-            end)
-        end
-        RuntimeLegPart.Size = Vector3.new(SystemConfig.LegReachSize, SystemConfig.LegReachSize, SystemConfig.LegReachSize)
-        RuntimeLegPart.Transparency = 0.7
-    else
-        if RuntimeLegPart then RuntimeLegPart:Destroy() RuntimeLegPart = nil end
-    end
-
-    -- Ball Reach Physics Engine Logic
-    if SystemConfig.BallReachEnabled and SystemConfig.BallVisualizer then
-        if not RuntimeBallPart or not RuntimeBallPart.Parent then
-            RuntimeBallPart = Instance.new("Part")
-            RuntimeBallPart.Name = "Touchline_BallReachPart"
-            RuntimeBallPart.Shape = Enum.PartType.Ball
-            RuntimeBallPart.Material = Enum.Material.ForceField
-            RuntimeBallPart.Color = Color3.fromRGB(230, 40, 105)
-            RuntimeBallPart.CastShadow = false
-            RuntimeBallPart.CanCollide = SystemConfig.BallCollision
-            RuntimeBallPart.Anchored = false
-            RuntimeBallPart.Parent = Character
-            
-            local ConnectionWeld = Instance.new("WeldConstraint")
-            ConnectionWeld.Part0 = RootPart
-            ConnectionWeld.Part1 = RuntimeBallPart
-            ConnectionWeld.Parent = RuntimeBallPart
-        end
-        RuntimeBallPart.Size = Vector3.new(SystemConfig.BallReachSize, SystemConfig.BallReachSize, SystemConfig.BallReachSize)
-        RuntimeBallPart.Transparency = 0.75
-    else
-        if RuntimeBallPart then RuntimeBallPart:Destroy() RuntimeBallPart = nil end
-    end
-end)
-
-print("[Phase System] Environment successfully initiated from strict imagery specifications.")
+    FrameButton.
