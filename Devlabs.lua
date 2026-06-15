@@ -68,4 +68,45 @@ CloseButton.Text = "✕"
 CloseButton.Font = Enum.Font.SourceSansBold
 CloseButton.TextSize = 18
 CloseButton.TextColor3 = Colors.TextMuted
-CloseButton.Size = UDim2
+CloseButton.Size = UDim2.new(0, 40, 1, 0)
+CloseButton.Position = UDim2.new(1, -40, 0, 0)
+CloseButton.BackgroundTransparency = 1
+CloseButton.Parent = TopHeader
+
+-- Sidebar
+local NavigationSidebar = Instance.new("Frame")
+NavigationSidebar.Size = UDim2.new(0, 130, 1, -40)
+NavigationSidebar.Position = UDim2.new(0, 0, 0, 40)
+NavigationSidebar.BackgroundColor3 = Colors.Sidebar
+NavigationSidebar.Parent = MainFrame
+
+local NavigationLayout = Instance.new("UIListLayout")
+NavigationLayout.Padding = UDim.new(0, 6)
+NavigationLayout.SortOrder = Enum.SortOrder.LayoutOrder
+NavigationLayout.Parent = NavigationSidebar
+
+-- Display Area
+local DisplayContainer = Instance.new("Frame")
+DisplayContainer.Size = UDim2.new(1, -140, 1, -50)
+DisplayContainer.Position = UDim2.new(0, 135, 0, 45)
+DisplayContainer.BackgroundTransparency = 1
+DisplayContainer.Parent = MainFrame
+
+-- Factories
+local function CreateCategoryHeader(parent, text)
+    local lbl = Instance.new("TextLabel")
+    lbl.Text = " " .. text
+    lbl.Font = Enum.Font.SourceSansBold
+    lbl.TextSize = 14
+    lbl.TextColor3 = Colors.AccentPurple
+    lbl.Size = UDim2.new(1, -10, 0, 26)
+    lbl.BackgroundTransparency = 1
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = parent
+end
+
+local function CreateToggle(parent, text, configKey)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, -12, 0, 36)
+    frame.BackgroundColor3 = Colors.ComponentBg
+    Instance.new("UICorner", frame).CornerRadius = UDim
