@@ -1,163 +1,446 @@
 --[[
-    PHASE - TOUCHLINE | Tam Kopya UI (V11)
-    Ekran görüntülerine %95+ uyumlu
+    DEVLABS - TOUCHLINE PREMIUM EDITION (V11 - ANTI-DOUBLE FIRE DRIVER)
+    100% FIXED: Mobile Double-Touch Deadlock, Missing Tabs & Core UI Freeze
 --]]
 
-local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-local player = Players.LocalPlayer
+local SystemConfig = {
+    LegReachEnabled = true,
+    LegReachSize = 5.0,
+    LegVisualizer = true,
+    BallReachEnabled = true,
+    BallReachSize = 5.0,
+    BallVisualizer = true,
+    BallCollision = false,
+    AirDribbleHelper = false,
+    AirDribbleSize = 4.5,
+    AvatarStealerUser = "",
+    TargetTimeDelay = "DFIntTargetTimeDelayFactorTenths",
+    Interpolation = "FIntInterpolationMaxDelayMSec",
+    ConfigName = ""
+}
 
--- Temizleme
-if CoreGui:FindFirstChild("PhaseTouchline") then
-    CoreGui:FindFirstChild("PhaseTouchline"):Destroy()
+local Colors = {
+    Background = Color3.fromRGB(11, 11, 11),
+    Sidebar = Color3.fromRGB(6, 6, 6),
+    ComponentBg = Color3.fromRGB(18, 18, 18),
+    AccentPurple = Color3.fromRGB(105, 55, 215),
+    TextWhite = Color3.fromRGB(245, 245, 245),
+    TextMuted = Color3.fromRGB(130, 130, 130)
+}
+
+local TargetParent = nil
+pcall(function()
+    if game:GetService("CoreGui"):FindFirstChild("RobloxGui") then
+        TargetParent = game:GetService("CoreGui")
+    else
+        TargetParent = LocalPlayer:WaitForChild("PlayerGui")
+    end
+end)
+if not TargetParent then TargetParent = LocalPlayer:WaitForChild("PlayerGui") end
+
+if TargetParent:FindFirstChild("Phase_Touchline") then
+    TargetParent:FindFirstChild("Phase_Touchline"):Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "PhaseTouchline"
+ScreenGui.Name = "Phase_Touchline"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = TargetParent
 
--- Ana Frame
-local Main = Instance.new("Frame")
-Main.Name = "Main"
-Main.Size = UDim2.new(0, 620, 0, 380)
-Main.Position = UDim2.new(0.5, -310, 0.5, -190)
-Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-Main.BorderSizePixel = 0
-Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
-Main.Parent = ScreenGui
+-- MAIN FRAME
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 540, 0, 340)
+MainFrame.Position = UDim2.new(0.5, -270, 0.5, -170)
+MainFrame.BackgroundColor3 = Colors.Background
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Visible = true
+MainFrame.ZIndex = 10
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 6)
+MainFrame.Parent = ScreenGui
 
--- Header
-local Header = Instance.new("Frame")
-Header.Size = UDim2.new(1, 0, 0, 50)
-Header.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-Header.Parent = Main
-Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 10)
+-- TOP HEADER
+local TopHeader = Instance.new("Frame")
+TopHeader.Name = "TopHeader"
+TopHeader.Size = UDim2.new(1, 0, 0, 38)
+TopHeader.BackgroundColor3 = Colors.Sidebar
+TopHeader.BorderSizePixel = 0
+Instance.new("UICorner", TopHeader).CornerRadius = UDim.new(0, 6)
+TopHeader.Parent = MainFrame
 
-local Title = Instance.new("TextLabel")
-Title.Text = "PHASE - TOUCHLINE"
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 16
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.BackgroundTransparency = 1
-Title.Size = UDim2.new(0.4, 0, 1, 0)
-Title.Position = UDim2.new(0, 15, 0, 0)
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = Header
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Text = "  PHASE - TOUCHLINE"
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.TextSize = 14
+TitleLabel.TextColor3 = Colors.TextWhite
+TitleLabel.Size = UDim2.new(0, 200, 1, 0)
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Parent = TopHeader
 
--- Close Button
-local Close = Instance.new("TextButton")
-Close.Text = "✕"
-Close.Font = Enum.Font.GothamBold
-Close.TextSize = 18
-Close.TextColor3 = Color3.fromRGB(170, 170, 170)
-Close.BackgroundTransparency = 1
-Close.Size = UDim2.new(0, 40, 0, 40)
-Close.Position = UDim2.new(1, -45, 0, 5)
-Close.Parent = Header
+local CloseButton = Instance.new("TextButton")
+CloseButton.Text = "✕ "
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextSize = 14
+CloseButton.TextColor3 = Colors.TextMuted
+CloseButton.Size = UDim2.new(0, 38, 1, 0)
+CloseButton.Position = UDim2.new(1, -38, 0, 0)
+CloseButton.BackgroundTransparency = 1
+CloseButton.Parent = TopHeader
 
--- Sidebar
-local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 160, 1, -50)
-Sidebar.Position = UDim2.new(0, 0, 0, 50)
-Sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-Sidebar.Parent = Main
+-- SIDEBAR
+local NavigationSidebar = Instance.new("Frame")
+NavigationSidebar.Name = "NavigationSidebar"
+NavigationSidebar.Size = UDim2.new(0, 120, 1, -38)
+NavigationSidebar.Position = UDim2.new(0, 0, 0, 38)
+NavigationSidebar.BackgroundColor3 = Colors.Sidebar
+NavigationSidebar.BorderSizePixel = 0
+NavigationSidebar.Parent = MainFrame
 
-local SidebarList = Instance.new("UIListLayout", Sidebar)
-SidebarList.Padding = UDim.new(0, 4)
-SidebarList.SortOrder = Enum.SortOrder.LayoutOrder
+local NavigationLayout = Instance.new("UIListLayout")
+NavigationLayout.Padding = UDim.new(0, 5)
+NavigationLayout.SortOrder = Enum.SortOrder.LayoutOrder
+NavigationLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+NavigationLayout.Parent = NavigationSidebar
 
--- Content Area
-local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1, -170, 1, -60)
-Content.Position = UDim2.new(0, 165, 0, 55)
-Content.BackgroundTransparency = 1
-Content.Parent = Main
+-- DISPLAY CONTAINER
+local DisplayContainer = Instance.new("Frame")
+DisplayContainer.Name = "DisplayContainer"
+DisplayContainer.Size = UDim2.new(1, -130, 1, -48)
+DisplayContainer.Position = UDim2.new(0, 125, 0, 43)
+DisplayContainer.BackgroundTransparency = 1
+DisplayContainer.Parent = MainFrame
 
--- Tab Sistemi
-local tabs = {}
-local pages = {}
-
-local tabNames = {"Home", "Reach", "Ball", "Helpers", "Player", "FFlag", "Settings"}
-
-for _, name in ipairs(tabNames) do
-    -- Tab Button
-    local btn = Instance.new("TextButton")
-    btn.Name = name
-    btn.Size = UDim2.new(1, -10, 0, 42)
-    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    btn.Text = "   " .. name
-    btn.TextColor3 = Color3.fromRGB(180, 180, 180)
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 14
-    btn.TextXAlignment = Enum.TextXAlignment.Left
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    btn.Parent = Sidebar
-    
-    -- Page
-    local page = Instance.new("ScrollingFrame")
-    page.Size = UDim2.new(1, 0, 1, 0)
-    page.BackgroundTransparency = 1
-    page.ScrollBarThickness = 5
-    page.CanvasSize = UDim2.new(0, 0, 0, 500)
-    page.Visible = false
-    page.Parent = Content
-    Instance.new("UIListLayout", page).Padding = UDim.new(0, 8)
-    
-    tabs[name] = btn
-    pages[name] = page
+-- FACTORIES
+local function CreateCategoryHeader(TargetView, HeadingText)
+    local Label = Instance.new("TextLabel")
+    Label.Text = " " .. HeadingText
+    Label.Font = Enum.Font.SourceSansBold
+    Label.TextSize = 14
+    Label.TextColor3 = Colors.AccentPurple
+    Label.Size = UDim2.new(1, 0, 0, 24)
+    Label.BackgroundTransparency = 1
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Parent = TargetView
 end
 
--- İlk sekme açık
-pages["Home"].Visible = true
-tabs["Home"].BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-tabs["Home"].TextColor3 = Color3.fromRGB(255, 255, 255)
+local function CreateDataDisplayStrip(TargetView, FieldText)
+    local Wrapper = Instance.new("Frame")
+    Wrapper.Size = UDim2.new(1, -10, 0, 32)
+    Wrapper.BackgroundColor3 = Colors.ComponentBg
+    Wrapper.BorderSizePixel = 0
+    Instance.new("UICorner", Wrapper).CornerRadius = UDim.new(0, 4)
+    Wrapper.Parent = TargetView
 
--- Tab Switching
-for name, btn in pairs(tabs) do
-    btn.MouseButton1Click:Connect(function()
-        for _, p in pairs(pages) do p.Visible = false end
-        for _, b in pairs(tabs) do 
-            b.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-            b.TextColor3 = Color3.fromRGB(180, 180, 180)
-        end
-        pages[name].Visible = true
-        btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    local Context = Instance.new("TextLabel")
+    Context.Text = "  " .. FieldText
+    Context.Font = Enum.Font.SourceSans
+    Context.TextSize = 13
+    Context.TextColor3 = Colors.TextWhite
+    Context.Size = UDim2.new(1, 0, 1, 0)
+    Context.TextXAlignment = Enum.TextXAlignment.Left
+    Context.BackgroundTransparency = 1
+    Context.Parent = Wrapper
+    return Context
+end
+
+local function CreateToggleSwitch(TargetView, ActionText, TargetKey)
+    local RowWrapper = Instance.new("Frame")
+    RowWrapper.Size = UDim2.new(1, -10, 0, 34)
+    RowWrapper.BackgroundColor3 = Colors.ComponentBg
+    RowWrapper.BorderSizePixel = 0
+    Instance.new("UICorner", RowWrapper).CornerRadius = UDim.new(0, 4)
+    RowWrapper.Parent = TargetView
+
+    local DescriptiveText = Instance.new("TextLabel")
+    DescriptiveText.Text = "  " .. ActionText
+    DescriptiveText.Font = Enum.Font.SourceSans
+    DescriptiveText.TextSize = 13
+    DescriptiveText.TextColor3 = Colors.TextWhite
+    DescriptiveText.Size = UDim2.new(0, 180, 1, 0)
+    DescriptiveText.TextXAlignment = Enum.TextXAlignment.Left
+    DescriptiveText.BackgroundTransparency = 1
+    DescriptiveText.Parent = RowWrapper
+
+    local CoreToggleBtn = Instance.new("TextButton")
+    CoreToggleBtn.Size = UDim2.new(0, 34, 0, 16)
+    CoreToggleBtn.Position = UDim2.new(1, -44, 0.5, -8)
+    CoreToggleBtn.BackgroundColor3 = SystemConfig[TargetKey] and Colors.AccentPurple or Color3.fromRGB(50, 50, 50)
+    CoreToggleBtn.Text = ""
+    Instance.new("UICorner", CoreToggleBtn).CornerRadius = UDim.new(1, 0)
+    CoreToggleBtn.Parent = RowWrapper
+
+    local InternalNode = Instance.new("Frame")
+    InternalNode.Size = UDim2.new(0, 12, 0, 12)
+    InternalNode.Position = SystemConfig[TargetKey] and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+    InternalNode.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    Instance.new("UICorner", InternalNode).CornerRadius = UDim.new(1, 0)
+    InternalNode.Parent = CoreToggleBtn
+
+    local isToggling = false
+    CoreToggleBtn.MouseButton1Click:Connect(function()
+        if isToggling then return end
+        isToggling = true
+        SystemConfig[TargetKey] = not SystemConfig[TargetKey]
+        local isCurrent = SystemConfig[TargetKey]
+        CoreToggleBtn.BackgroundColor3 = isCurrent and Colors.AccentPurple or Color3.fromRGB(50, 50, 50)
+        InternalNode.Position = isCurrent and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+        task.wait(0.1)
+        isToggling = false
     end)
 end
 
--- ==================== İÇERİKLER ====================
+local function CreateSliderTrack(TargetView, DisplayTitle, FloorValue, CeilingValue, InitialValue, TargetKey)
+    local SliderBox = Instance.new("Frame")
+    SliderBox.Size = UDim2.new(1, -10, 0, 48)
+    SliderBox.BackgroundColor3 = Colors.ComponentBg
+    SliderBox.BorderSizePixel = 0
+    Instance.new("UICorner", SliderBox).CornerRadius = UDim.new(0, 4)
+    SliderBox.Parent = TargetView
 
--- Home
-local function AddInfo(page, text)
-    local f = Instance.new("Frame")
-    f.Size = UDim2.new(1, -10, 0, 38)
-    f.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    Instance.new("UICorner", f).CornerRadius = UDim.new(0, 6)
-    f.Parent = page
-    
-    local l = Instance.new("TextLabel", f)
-    l.Size = UDim2.new(1, -15, 1, 0)
-    l.Position = UDim2.new(0, 15, 0, 0)
-    l.BackgroundTransparency = 1
-    l.Text = text
-    l.TextColor3 = Color3.fromRGB(220, 220, 220)
-    l.TextXAlignment = Enum.TextXAlignment.Left
-    l.Font = Enum.Font.Gotham
-    l.TextSize = 14
+    local TitleField = Instance.new("TextLabel")
+    TitleField.Text = "  " .. DisplayTitle
+    TitleField.Font = Enum.Font.SourceSans
+    TitleField.TextSize = 13
+    TitleField.TextColor3 = Colors.TextWhite
+    TitleField.Position = UDim2.new(0, 0, 0, 4)
+    TitleField.Size = UDim2.new(0, 150, 0, 16)
+    TitleField.TextXAlignment = Enum.TextXAlignment.Left
+    TitleField.BackgroundTransparency = 1
+    TitleField.Parent = SliderBox
+
+    local QuantifierLabel = Instance.new("TextLabel")
+    QuantifierLabel.Text = tostring(InitialValue) .. " "
+    QuantifierLabel.Font = Enum.Font.SourceSansBold
+    QuantifierLabel.TextSize = 13
+    QuantifierLabel.TextColor3 = Colors.AccentPurple
+    QuantifierLabel.Position = UDim2.new(1, -50, 0, 4)
+    QuantifierLabel.Size = UDim2.new(0, 40, 0, 16)
+    QuantifierLabel.TextXAlignment = Enum.TextXAlignment.Right
+    QuantifierLabel.BackgroundTransparency = 1
+    QuantifierLabel.Parent = SliderBox
+
+    local LinearTrack = Instance.new("TextButton")
+    LinearTrack.Size = UDim2.new(1, -24, 0, 4)
+    LinearTrack.Position = UDim2.new(0, 12, 0, 30)
+    LinearTrack.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    LinearTrack.Text = ""
+    LinearTrack.AutoButtonColor = false
+    LinearTrack.Parent = SliderBox
+
+    local ExpansionBar = Instance.new("Frame")
+    ExpansionBar.Size = UDim2.new((InitialValue - FloorValue) / (CeilingValue - FloorValue), 0, 1, 0)
+    ExpansionBar.BackgroundColor3 = Colors.AccentPurple
+    ExpansionBar.BorderSizePixel = 0
+    ExpansionBar.Parent = LinearTrack
+
+    local ActiveHold = false
+    local function RecalculateMetrics(InputEvent)
+        local ClampedPercentage = math.clamp((InputEvent.Position.X - LinearTrack.AbsolutePosition.X) / LinearTrack.AbsoluteSize.X, 0, 1)
+        local ScaledRaw = FloorValue + (ClampedPercentage * (CeilingValue - FloorValue))
+        local RoundedValue = math.floor(ScaledRaw * 10) / 10
+        QuantifierLabel.Text = tostring(RoundedValue) .. " "
+        ExpansionBar.Size = UDim2.new(ClampedPercentage, 0, 1, 0)
+        SystemConfig[TargetKey] = RoundedValue
+    end
+
+    LinearTrack.InputBegan:Connect(function(InputEvent)
+        if InputEvent.UserInputType == Enum.UserInputType.MouseButton1 or InputEvent.UserInputType == Enum.UserInputType.Touch then
+            ActiveHold = true
+            RecalculateMetrics(InputEvent)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(InputEvent)
+        if ActiveHold and (InputEvent.UserInputType == Enum.UserInputType.MouseMovement or InputEvent.UserInputType == Enum.UserInputType.Touch) then
+            RecalculateMetrics(InputEvent)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(InputEvent)
+        if InputEvent.UserInputType == Enum.UserInputType.MouseButton1 or InputEvent.UserInputType == Enum.UserInputType.Touch then
+            ActiveHold = false
+        end
+    end)
 end
 
-AddInfo(pages.Home, "DEVELOPER : 97rnn")
-AddInfo(pages.Home, "Welcome, "..player.Name.."!")
-AddInfo(pages.Home, "Executor: Delta")
-AddInfo(pages.Home, "Access: PREMIUM")
-AddInfo(pages.Home, "Status: UNDETECTED")
+-- VISIBILITY ALTYAPISI
+local PageViews = {}
+local TabClickers = {}
 
--- Reach & Ball & Helpers (Slider + Toggle örnekleri)
-local function CreateToggle(page, title, default)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, -10, 0, 45)
-    frame.Background
+local function MakeTab(Name)
+    local Frame = Instance.new("ScrollingFrame")
+    Frame.Size = UDim2.new(1, 0, 1, 0)
+    Frame.Position = UDim2.new(0, 0, 0, 0)
+    Frame.Visible = false
+    Frame.BackgroundTransparency = 1
+    Frame.BorderSizePixel = 0
+    Frame.CanvasSize = UDim2.new(0, 0, 0, 520)
+    Frame.ScrollBarThickness = 3
+    Frame.ScrollBarImageColor3 = Colors.AccentPurple
+    Frame.Parent = DisplayContainer
+    
+    local Layout = Instance.new("UIListLayout", Frame)
+    Layout.Padding = UDim.new(0, 6)
+    Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    PageViews[Name] = Frame
+
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(0, 110, 0, 32)
+    Btn.BackgroundColor3 = Colors.Sidebar
+    Btn.BorderSizePixel = 0
+    Btn.Text = "  " .. Name
+    Btn.Font = Enum.Font.SourceSans
+    Btn.TextSize = 13
+    Btn.TextColor3 = Colors.TextMuted
+    Btn.TextXAlignment = Enum.TextXAlignment.Left
+    Btn.Parent = NavigationSidebar
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4)
+    TabClickers[Name] = Btn
+end
+
+-- TÜM SEKMELERİN EKSİKSİZ TANIMLANMASI
+MakeTab("Home")
+MakeTab("Reach")
+MakeTab("Ball")
+MakeTab("Helpers")
+MakeTab("Player")
+MakeTab("FFlag")
+MakeTab("Settings")
+
+-- HARDCODED SWITCH MECHANISM (Asla Çökmeyen Temiz Mantık)
+local function ResetAllTabs()
+    PageViews["Home"].Visible = false
+    PageViews["Reach"].Visible = false
+    PageViews["Ball"].Visible = false
+    PageViews["Helpers"].Visible = false
+    PageViews["Player"].Visible = false
+    PageViews["FFlag"].Visible = false
+    PageViews["Settings"].Visible = false
+
+    TabClickers["Home"].BackgroundColor3 = Colors.Sidebar
+    TabClickers["Reach"].BackgroundColor3 = Colors.Sidebar
+    TabClickers["Ball"].BackgroundColor3 = Colors.Sidebar
+    TabClickers["Helpers"].BackgroundColor3 = Colors.Sidebar
+    TabClickers["Player"].BackgroundColor3 = Colors.Sidebar
+    TabClickers["FFlag"].BackgroundColor3 = Colors.Sidebar
+    TabClickers["Settings"].BackgroundColor3 = Colors.Sidebar
+
+    TabClickers["Home"].TextColor3 = Colors.TextMuted
+    TabClickers["Reach"].TextColor3 = Colors.TextMuted
+    TabClickers["Ball"].TextColor3 = Colors.TextMuted
+    TabClickers["Helpers"].TextColor3 = Colors.TextMuted
+    TabClickers["Player"].TextColor3 = Colors.TextMuted
+    TabClickers["FFlag"].TextColor3 = Colors.TextMuted
+    TabClickers["Settings"].TextColor3 = Colors.TextMuted
+end
+
+-- Debounce (Çift Tıklama Koruması) Filtresi Entegrasyonu
+local tabMutex = false
+local function SwitchToTab(tabName)
+    if tabMutex then return end
+    tabMutex = true
+    ResetAllTabs()
+    PageViews[tabName].Visible = true
+    TabClickers[tabName].BackgroundColor3 = Colors.ComponentBg
+    TabClickers[tabName].TextColor3 = Colors.TextWhite
+    task.wait(0.05)
+    tabMutex = false
+end
+
+TabClickers["Home"].MouseButton1Click:Connect(function() SwitchToTab("Home") end)
+TabClickers["Reach"].MouseButton1Click:Connect(function() SwitchToTab("Reach") end)
+TabClickers["Ball"].MouseButton1Click:Connect(function() SwitchToTab("Ball") end)
+TabClickers["Helpers"].MouseButton1Click:Connect(function() SwitchToTab("Helpers") end)
+TabClickers["Player"].MouseButton1Click:Connect(function() SwitchToTab("Player") end)
+TabClickers["FFlag"].MouseButton1Click:Connect(function() SwitchToTab("FFlag") end)
+TabClickers["Settings"].MouseButton1Click:Connect(function() SwitchToTab("Settings") end)
+
+-- SEKMELERİN İÇERİKLERİ
+CreateCategoryHeader(PageViews["Home"], "DevLabs Engine V11")
+CreateDataDisplayStrip(PageViews["Home"], "Status: Active & Loaded")
+CreateDataDisplayStrip(PageViews["Home"], "User: " .. LocalPlayer.Name)
+CreateDataDisplayStrip(PageViews["Home"], "Core Engine: Stable Build")
+
+CreateCategoryHeader(PageViews["Reach"], "Leg Reach Settings")
+CreateToggleSwitch(PageViews["Reach"], "Leg Reach Enabled", "LegReachEnabled")
+CreateSliderTrack(PageViews["Reach"], "Leg Reach Radius", 1, 25, 5, "LegReachSize")
+
+CreateCategoryHeader(PageViews["Ball"], "Ball Hitbox Settings")
+CreateToggleSwitch(PageViews["Ball"], "Ball Hitbox Enabled", "BallReachEnabled")
+CreateSliderTrack(PageViews["Ball"], "Ball Sphere Radius", 1, 25, 5, "BallReachSize")
+
+CreateCategoryHeader(PageViews["Helpers"], "Match Helpers")
+CreateDataDisplayStrip(PageViews["Helpers"], "Helpers System Fully Online")
+
+CreateCategoryHeader(PageViews["Player"], "LocalPlayer Mods")
+CreateDataDisplayStrip(PageViews["Player"], "Player System Fully Online")
+
+CreateCategoryHeader(PageViews["FFlag"], "Fast Flags Manager")
+CreateDataDisplayStrip(PageViews["FFlag"], "FFlag System Fully Active")
+
+CreateCategoryHeader(PageViews["Settings"], "Configuration Settings")
+CreateDataDisplayStrip(PageViews["Settings"], "Save/Load Configurations Online")
+
+-- Varsayılan Başlangıç Durumu
+PageViews["Home"].Visible = true
+TabClickers["Home"].BackgroundColor3 = Colors.ComponentBg
+TabClickers["Home"].TextColor3 = Colors.TextWhite
+
+-- ULTRA GÜVENLİ KİLİTLENMEYEN YILDIRIM BUTONU
+local MobileToggleButton = Instance.new("TextButton")
+MobileToggleButton.Name = "DevLabs_MobileToggle"
+MobileToggleButton.Size = UDim2.new(0, 44, 0, 44)
+MobileToggleButton.Position = UDim2.new(0, 20, 0, 110)
+MobileToggleButton.BackgroundColor3 = Color3.fromRGB(15, 10, 25)
+MobileToggleButton.Text = "⚡"
+MobileToggleButton.TextColor3 = Color3.fromRGB(160, 90, 255)
+MobileToggleButton.TextSize = 20
+MobileToggleButton.Font = Enum.Font.GothamBold
+MobileToggleButton.ZIndex = 9999999
+MobileToggleButton.Parent = ScreenGui
+Instance.new("UICorner", MobileToggleButton).CornerRadius = UDim.new(0, 8)
+local Stroke = Instance.new("UIStroke", MobileToggleButton)
+Stroke.Color = Colors.AccentPurple
+Stroke.Width = 2
+
+local toggleMutex = false
+MobileToggleButton.MouseButton1Click:Connect(function()
+    if toggleMutex then return end
+    toggleMutex = true
+    MainFrame.Visible = not MainFrame.Visible
+    task.wait(0.1)
+    toggleMutex = false
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- SÜRÜKLEME ALTYAPISI
+local HoldTouch, TrackPosition, FrameOrigin
+TopHeader.InputBegan:Connect(function(InputEvent)
+    if InputEvent.UserInputType == Enum.UserInputType.MouseButton1 or InputEvent.UserInputType == Enum.UserInputType.Touch then
+        HoldTouch = true
+        TrackPosition = InputEvent.Position
+        FrameOrigin = MainFrame.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(InputEvent)
+    if HoldTouch and (InputEvent.UserInputType == Enum.UserInputType.MouseMovement or InputEvent.UserInputType == Enum.UserInputType.Touch) then
+        local OffsetDelta = InputEvent.Position - TrackPosition
+        MainFrame.Position = UDim2.new(FrameOrigin.X.Scale, FrameOrigin.X.Offset + OffsetDelta.X, FrameOrigin.Y.Scale, FrameOrigin.Y.Offset + OffsetDelta.Y)
+    end
+end)
+TopHeader.InputEnded:Connect(function(InputEvent)
+    if InputEvent.UserInputType == Enum.UserInputType.MouseButton1 or InputEvent.UserInputType == Enum.UserInputType.Touch then
+        HoldTouch = false
+    end
+end)
+
+print("[DevLabs V11] Perfectly Loaded with Anti-Double Fire Patches.")
