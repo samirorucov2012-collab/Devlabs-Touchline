@@ -53,7 +53,26 @@ Sidebar.Parent = MainFrame
 local SidebarList = Instance.new("UIListLayout")
 SidebarList.Padding = UDim.new(0, 5)
 SidebarList.Parent = Sidebar
+Sidebar.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+Sidebar.Parent = MainFrame
 
+-- Sidebar Layout
+local SidebarList = Instance.new("UIListLayout")
+SidebarList.Padding = UDim.new(0, 5)
+SidebarList.Parent = Sidebar
+
+-- Tab Butonları
+local tabs = {"Reach", "Ball", "Player", "Helpers", "Settings"}
+
+for _, tabName in ipairs(tabs) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -10, 0, 40)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.Text = tabName
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamSemibold
+    btn.Parent = Sidebar
+end
 local tabs = {"Reach", "Ball", "Player", "Helpers"}
 for _, tabName in ipairs(tabs) do
     local btn = Instance.new("TextButton")
