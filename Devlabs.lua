@@ -1,48 +1,56 @@
---[[
-    DEVLABS - TOUCHLINE PREMIUM (V16 - ULTIMATE FIX BUILD)
-    FIXED: Mobile Toggle/Close Responsiveness (.Activated Engine)
-    ADDED: Fully Functioning Avatar Changer in Player Tab
---]]
+--[=[
+	PHASE - TOUCHLINE Open Source Edition
+	Full GUI + All Tabs + Mobile Toggle
+	GitHub Version
+]=]
 
-local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
--- Global Ayarlar Tablosu
-_G.SystemConfig = {
-    LegReachEnabled = true,
-    LegReachSize = 5.0,
-    LegVisualizer = true,
-    BallReachEnabled = true,
-    BallReachSize = 5.0,
-    BallVisualizer = true,
-    BallCollision = false,
-    AirDribbleHelper = false,
-    AirDribbleSize = 4.5
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- ================== CONFIG ==================
+local Config = {
+	LegReach = {Enabled = true, Size = 5},
+	BallReach = {Enabled = true, Size = 8},
+	BallMagnet = {Enabled = true, Power = 40},
+	AutoKick = {Enabled = true},
+	GoalAim = {Enabled = true},
+	AirDribble = {Enabled = true, Size = 4.5},
+	AvatarStealer = {Enabled = true},
 }
 
--- Delta ve Mobil Cihazlar İçin En Üst Katman Seçimi
-local TargetParent = LocalPlayer:WaitForChild("PlayerGui")
-local coreGuiSuccess, coreGuiInstance = pcall(function() return game:GetService("CoreGui") end)
-if coreGuiSuccess and coreGuiInstance then
-    TargetParent = coreGuiInstance
-end
+local guiOpen = true
 
--- Eski Arayüz Kalıntılarını Tamamen Temizle
-if TargetParent:FindFirstChild("Phase_Touchline") then
-    TargetParent:FindFirstChild("Phase_Touchline"):Destroy()
-end
-
--- SCREEN GUI INJECT (En Üst Sırada Görünmesi İçin DisplayOrder Eklendi)
+-- ================== GUI ==================
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "Phase_Touchline"
+ScreenGui.Name = "DEVLABS_TOUCHLINE"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ScreenGui.DisplayOrder = 9999999
-ScreenGui.Parent = TargetParent
+ScreenGui.Parent = playerGui
 
--- MAIN FRAME (ANA PANEL)
+-- Main Frame
 local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 540, 0, 340)
-MainFrame.Position = UDim2.new(0.5, -270, 0.5
+MainFrame.Size = UDim2.new(0, 520, 0, 460)
+MainFrame.Position = UDim2.new(0.5, -260, 0.5, -230)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+MainFrame.BorderSizePixel = 0
+MainFrame.Visible = true
+MainFrame.Parent = ScreenGui
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
+Title.Text = "DEVLABS- TOUCHLINE"
+Title.TextColor3 = Color3.fromRGB(180, 100, 255)
+Title.TextSize = 22
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
+
+-- Sidebar
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.new(0, 140, 1, -50)
+Sidebar.Position = UDim2.new(0, 0, 0, 50)
+Sidebar.BackgroundColor3 = Color3.fromRGB(22, 22,
